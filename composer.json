@@ -1,0 +1,17 @@
+{
+    "name": "smcleod/pipedrive",
+    "description": "Library to interact with pipedrive API v1",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Scott Mcleod",
+            "email": "smcleod@infostructure.biz"
+        }
+    ],
+    "require": {},
+    "autoload": {
+      "psr-4": {
+        "Pipedrive\\": "lib/"
+      }
+    }
+}
