@@ -105,15 +105,15 @@ class Client {
    * @return mixed
    */
   public function createDeal($title, $fields = array()) {
-    if (!isset($title)) {
-      throw new \Exception("A TITLE is required");
-    } else if (isset($status) && !preg_match("/^(?:open|won|lost|deleted)$/", $status)) {
-      throw new \Exception("'" . $status . "' is not a valid status value. Valid values are: open, won, lost, deleted");
-    } else if (isset($visible_to) && $visible_to !== 1 && $visible_to !== 3) {
-      throw new \Exception("'" . $visible_to . "' is not a valid visible_to value. Valid values are: 1, 3");
-    }
     $body = array_merge($this->getBody(), $fields);
     $body["title"] = $title;
+    if ($body["title"] === NULL || $body["title"] === "") {
+      throw new \Exception("A TITLE is required");
+    } else if (isset($body["status"]) && !preg_match("/^(?:open|won|lost|deleted)$/", $body["status"])) {
+      throw new \Exception("'" . $body["status"] . "' is not a valid status value. Valid values are: open, won, lost, deleted");
+    } else if (isset($body["visible_to"]) && $body["visible_to"] !== 1 && $body["visible_to"] !== 3) {
+      throw new \Exception("'" . $body["visible_to"] . "' is not a valid visible_to value. Valid values are: 1, 3");
+    }
     $response = \Unirest\Request::post($this->url . "deal/" . $id, $this->getHeaders(), json_encode($body));
     self::errorHandler($response);
     return $response->body;
