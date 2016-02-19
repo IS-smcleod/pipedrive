@@ -49,13 +49,13 @@ class Client {
    * @return mixed                          the resulting deals
    */
   public function getDeals($filter_id, $start, $limit, $sort, $owned_by_you) {
-    $body = self::getBody();
+    $body = $this->getBody();
     if (isset($filter_id   )) { $body["filter_id"]    = $filter_id;    }
     if (isset($start       )) { $body["start"]        = $start;        }
     if (isset($limit       )) { $body["limit"]        = $limit;        }
     if (isset($sort        )) { $body["sort"]         = $sort;         }
     if (isset($owned_by_you)) { $body["owned_by_you"] = $owned_by_you; }
-    $response = \Unirest\Request::get($this->url . "deals", self::getHeaders(), json_encode($body));
+    $response = \Unirest\Request::get($this->url . "deals", $this->getHeaders(), json_encode($body));
     self::errorHandler($response);
     return $response->body;
   }
@@ -67,7 +67,7 @@ class Client {
    */
   public function getDeal($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
-    $response = \Unirest\Request::get($this->url . "deal/" . $id, self::getHeaders(), self::getBody());
+    $response = \Unirest\Request::get($this->url . "deal/" . $id, self::getHeaders(), json_encode(getBody()));
     self::errorHandler($response);
     return $response->body;
   }
@@ -95,7 +95,7 @@ class Client {
     } else if (isset($visible_to) && $visible_to !== 1 && $visible_to !== 3) {
       throw new \Exception("'" . $visible_to . "' is not a valid visible_to value. Valid values are: 1, 3");
     }
-    $body = self::getBody();
+    $body = $this->getBody();
     if (isset($fields)) { $body = array_merge($body, $fields); }
     $body["title"] = $title;
     if (isset($value      )) { $body["value"]       = $value;       }
@@ -108,7 +108,7 @@ class Client {
     if (isset($lost_reason)) { $body["lost_reason"] = $lost_reason; }
     if (isset($add_time   )) { $body["add_time"]    = $add_time;    }
     if (isset($visible_to )) { $body["visible_to"]  = $visible_to;  }
-    $response = \Unirest\Request::post($this->url . "deal/" . $id, self::getHeaders(), json_encode($body));
+    $response = \Unirest\Request::post($this->url . "deal/" . $id, $this->getHeaders(), json_encode($body));
     self::errorHandler($response);
     return $response->body;
   }
@@ -118,7 +118,7 @@ class Client {
    * @return mixed
    */
   public function getDealFields() {
-    $response = \Unirest\Request::get($this->url . "dealFields", self::getHeaders(), self::getBody());
+    $response = \Unirest\Request::get($this->url . "dealFields", $this->getHeaders(), json_encode($this->getBody()));
     self::errorHandler($response);
     return $response->body;
   }
@@ -130,7 +130,7 @@ class Client {
    */
   public function getDealField($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
-    $response = \Unirest\Request::get($this->url . "dealFields/" . $id, self::getHeaders(), self::getBody());
+    $response = \Unirest\Request::get($this->url . "dealFields/" . $id, $this->getHeaders(), json_encode($this->getBody()));
     self::errorHandler($response);
     return $response->body;
   }
