@@ -102,7 +102,7 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDeal($id) {
-    return $this->request('GET', $this->url . "deals/" . $id, $this->getHeaders(), $this->getBody);
+    return $this->request('GET', $this->url . "deals/" . $id, $this->getHeaders(), $this->getBody());
   }
 
   /**
@@ -141,7 +141,7 @@ class Client {
    * @return mixed
    */
   public function getDealFields() {
-    return $this->request('GET', $this->url . "dealFields", $this->getHeaders(), $this->getBody);
+    return $this->request('GET', $this->url . "dealFields", $this->getHeaders(), $this->getBody());
   }
 
   /**
@@ -150,7 +150,7 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDealField($id) {
-    return $this->request('GET', $this->url . "dealFields/" . $id, $this->getHeaders(), $this->getBody);
+    return $this->request('GET', $this->url . "dealFields/" . $id, $this->getHeaders(), $this->getBody());
   }
 
 }
