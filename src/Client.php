@@ -47,7 +47,7 @@ class Client {
     if (isset($limit       )) { $body["limit"]        = $limit;        }
     if (isset($sort        )) { $body["sort"]         = $sort;         }
     if (isset($owned_by_you)) { $body["owned_by_you"] = $owned_by_you; }
-    $response = \Unirest\Request::get($this->url . "deals", getHeaders(), json_encode($body));
+    $response = \Unirest\Request::get($this->url . "deals", self::getHeaders(), json_encode($body));
     errorHandler($response);
     return $response->body;
   }
@@ -59,7 +59,7 @@ class Client {
    */
   public function getDeal($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
-    $response = \Unirest\Request::get($this->url . "deal/" . $id, getHeaders());
+    $response = \Unirest\Request::get($this->url . "deal/" . $id, self::getHeaders());
     errorHandler($response);
     return $response->body;
   }
@@ -100,7 +100,7 @@ class Client {
     if (isset($lost_reason)) { $body["lost_reason"] = $lost_reason; }
     if (isset($add_time   )) { $body["add_time"]    = $add_time;    }
     if (isset($visible_to )) { $body["visible_to"]  = $visible_to;  }
-    $response = \Unirest\Request::post($this->url . "deal/" . $id, getHeaders(), json_encode($body));
+    $response = \Unirest\Request::post($this->url . "deal/" . $id, self::getHeaders(), json_encode($body));
     errorHandler($response);
     return $response->body;
   }
@@ -110,7 +110,7 @@ class Client {
    * @return mixed
    */
   public function getDealFields() {
-    $response = \Unirest\Request::get($this->url . "dealFields", getHeaders());
+    $response = \Unirest\Request::get($this->url . "dealFields", self::getHeaders());
     errorHandler($response);
     return $response->body;
   }
@@ -122,7 +122,7 @@ class Client {
    */
   public function getDealField($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
-    $response = \Unirest\Request::get($this->url . "dealFields/" . $id, getHeaders());
+    $response = \Unirest\Request::get($this->url . "dealFields/" . $id, self::getHeaders());
     errorHandler($response);
     return $response->body;
   }
