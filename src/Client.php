@@ -7,12 +7,10 @@ namespace Pipedrive;
 class Client {
 
   protected $token, $url;
-  public $debug;
 
   public function __construct($token, $url = "https://api.pipedrive.com/v1/") {
     $this->token = $token;
     $this->url   = $url;
-    $this->debug = FALSE;
   }
 
   /**
@@ -70,13 +68,13 @@ class Client {
   protected function request($method, $url, $headers, $body) {
     $response = \Unirest\Request::send($method, $url, $headers, json_encode($body));
     $this->errorHandler($response);
-    if ($this->debug) {
-      $result = new stdClass();
-      $result->headers = $headers;
-      $result->body    = $body;
-      $result->info    = \Unirest\Request::getInfo();
-      return $result;
-    }
+    $this->lastRequest = array(
+      "method"  => $method,
+      "url"     => $url,
+      "headers" => $headers,
+      "body"    => $body,
+      "info"    => \Unirest\Request::getInfo()
+    );
     return $response->body;
   }
 
