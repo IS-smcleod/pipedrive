@@ -48,7 +48,7 @@ class Client {
     if (isset($sort        )) { $body["sort"]         = $sort;         }
     if (isset($owned_by_you)) { $body["owned_by_you"] = $owned_by_you; }
     $response = \Unirest\Request::get($this->url . "deals", self::getHeaders(), json_encode($body));
-    errorHandler($response);
+    self::errorHandler($response);
     return $response->body;
   }
 
@@ -60,7 +60,7 @@ class Client {
   public function getDeal($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
     $response = \Unirest\Request::get($this->url . "deal/" . $id, self::getHeaders());
-    errorHandler($response);
+    self::errorHandler($response);
     return $response->body;
   }
 
@@ -101,7 +101,7 @@ class Client {
     if (isset($add_time   )) { $body["add_time"]    = $add_time;    }
     if (isset($visible_to )) { $body["visible_to"]  = $visible_to;  }
     $response = \Unirest\Request::post($this->url . "deal/" . $id, self::getHeaders(), json_encode($body));
-    errorHandler($response);
+    self::errorHandler($response);
     return $response->body;
   }
 
@@ -111,7 +111,7 @@ class Client {
    */
   public function getDealFields() {
     $response = \Unirest\Request::get($this->url . "dealFields", self::getHeaders());
-    errorHandler($response);
+    self::errorHandler($response);
     return $response->body;
   }
 
@@ -123,7 +123,7 @@ class Client {
   public function getDealField($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
     $response = \Unirest\Request::get($this->url . "dealFields/" . $id, self::getHeaders());
-    errorHandler($response);
+    self::errorHandler($response);
     return $response->body;
   }
 
