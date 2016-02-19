@@ -7,10 +7,12 @@ namespace Pipedrive;
 class Client {
 
   protected $token, $url;
+  public $debug;
 
   public function __construct($token, $url = "https://api.pipedrive.com/v1/") {
     $this->token = $token;
-    $this->url = $url;
+    $this->url   = $url;
+    $this->debug = FALSE;
   }
 
   /**
@@ -58,6 +60,27 @@ class Client {
   }
 
   /**
+   * Request wrapper
+   * @param  string   $method  HTTP method to make the request with
+   * @param  string   $url     URL for the request
+   * @param  mixed    $headers headers for the request
+   * @param  mixed    $body    content for the request
+   * @return stdClass
+   */
+  protected function request($method, $url, $headers, $body) {
+    $response = \Unirest\Request::send($method, $url, $headers, json_encode($body));
+    $this->errorHandler($response);
+    if ($this->debug) {
+      $result = new stdClass();
+      $result->headers = $headers;
+      $result->body    = $body;
+      $result->info    = \Unirest\Request::getInfo();
+      return $result;
+    }
+    return $response->body;
+  }
+
+  /**
    * Get all of the deals.
    * Possible options:
    * integer filter_id    ID of the filter to use
@@ -70,9 +93,7 @@ class Client {
    */
   public function getDeals($options = array()) {
     $body = self::mergeOptions($this->getBody(), $options, "filter_id,start,limit,sort,owned_by_you");
-    $response = \Unirest\Request::get($this->url . "deals", $this->getHeaders(), json_encode($body));
-    self::errorHandler($response);
-    return $response->body;
+    return $this->request('GET', $this->url . "deals", $this->getHeaders(), $body);
   }
 
   /**
@@ -81,9 +102,7 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDeal($id) {
-    $response = \Unirest\Request::get($this->url . "deal/" . $id, $this->getHeaders(), json_encode($this->getBody()));
-    self::errorHandler($response);
-    return $response->body;
+    return $this->request('GET', $this->url . "deals/" . $id, $this->getHeaders(), $this->getBody);
   }
 
   /**
@@ -114,9 +133,7 @@ class Client {
     } else if (isset($body["visible_to"]) && $body["visible_to"] !== 1 && $body["visible_to"] !== 3) {
       throw new \Exception("'" . $body["visible_to"] . "' is not a valid visible_to value. Valid values are: 1, 3");
     }
-    $response = \Unirest\Request::post($this->url . "deal/" . $id, $this->getHeaders(), json_encode($body));
-    self::errorHandler($response);
-    return $response->body;
+    return $this->request('POST', $this->url . "deals", $this->getHeaders(), $body);
   }
 
   /**
@@ -124,9 +141,7 @@ class Client {
    * @return mixed
    */
   public function getDealFields() {
-    $response = \Unirest\Request::get($this->url . "dealFields", $this->getHeaders(), json_encode($this->getBody()));
-    self::errorHandler($response);
-    return $response->body;
+    return $this->request('GET', $this->url . "dealFields", $this->getHeaders(), $this->getBody);
   }
 
   /**
@@ -135,9 +150,7 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDealField($id) {
-    $response = \Unirest\Request::get($this->url . "dealFields/" . $id, $this->getHeaders(), json_encode($this->getBody()));
-    self::errorHandler($response);
-    return $response->body;
+    return $this->request('GET', $this->url . "dealFields/" . $id, $this->getHeaders(), $this->getBody);
   }
 
 }
