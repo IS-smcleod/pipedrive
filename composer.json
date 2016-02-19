@@ -20,8 +20,8 @@
         "mashape/unirest-php": "2.*"
     },
     "autoload": {
-        "psr-0": {
-            "Pipedrive": "src"
+        "psr-4": {
+            "Pipedrive\\": "src/"
         }
     }
 }
