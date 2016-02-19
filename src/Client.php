@@ -1,6 +1,9 @@
 <?php
 namespace Pipedrive;
 
+/**
+ * Client for interacting with Pipedrive API v1
+ */
 class Client {
 
   protected $token, $url;
@@ -30,6 +33,21 @@ class Client {
   }
 
   /**
+   * Marge the specific fields from the source array into the target array.
+   * @param  mixed        $target base array new entries will be added to
+   * @param  mixed        $source source array to get new entries from
+   * @param  string|array $fields keys to merge
+   * @return mixed
+   */
+  protected function mergeOptions($target, $source, $fields) {
+    if (!is_array($fields)) { $fields = explode(",", $fields); }
+    foreach ($fields as $field) {
+      if (isset($source[$field])) { $target[$field] = $source[$field]; }
+    }
+    return $target;
+  }
+
+  /**
    * Error handler for API responses.
    * @param  \Unirest\Response $response response to check
    */
@@ -41,20 +59,17 @@ class Client {
 
   /**
    * Get all of the deals.
-   * @param  integer          $filter_id    ID of the filter to use
-   * @param  integer          $start        number of items to skip
-   * @param  integer          $limit        maximum number of items in response
-   * @param  string           $sort         comma separated list of fields to and how they should be sorted
-   * @param  boolean          $owned_by_you only include deals owned by the user
-   * @return mixed                          the resulting deals
+   * Possible options:
+   * integer filter_id    ID of the filter to use
+   * integer start        number of items to skip
+   * integer limit        maximum number of items in response
+   * string  sort         comma separated list of fields to and how they should be sorted
+   * boolean owned_by_you only include deals owned by the user
+   * @param  mixed $options options for the request
+   * @return mixed          the resulting deals
    */
-  public function getDeals($filter_id, $start, $limit, $sort, $owned_by_you) {
-    $body = $this->getBody();
-    if (isset($filter_id   )) { $body["filter_id"]    = $filter_id;    }
-    if (isset($start       )) { $body["start"]        = $start;        }
-    if (isset($limit       )) { $body["limit"]        = $limit;        }
-    if (isset($sort        )) { $body["sort"]         = $sort;         }
-    if (isset($owned_by_you)) { $body["owned_by_you"] = $owned_by_you; }
+  public function getDeals($options) {
+    $body = self::mergeOptions($this->getBody(), $options, "filter_id,start,limit,sort,owned_by_you");
     $response = \Unirest\Request::get($this->url . "deals", $this->getHeaders(), json_encode($body));
     self::errorHandler($response);
     return $response->body;
@@ -66,28 +81,30 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDeal($id) {
-    if (!isset($id)) { throw new \Exception("An ID is required"); }
-    $response = \Unirest\Request::get($this->url . "deal/" . $id, self::getHeaders(), json_encode(getBody()));
+    $response = \Unirest\Request::get($this->url . "deal/" . $id, $this->getHeaders(), json_encode($this->getBody()));
     self::errorHandler($response);
     return $response->body;
   }
 
   /**
-   * Create a
+   * Create a new Deal.
+   * Possible fields:
+   * string  value       value of the deal. default: 0
+   * string  currency    ISO 3166 alpha 3, three letter country code. default: user's currency
+   * integer user_id     id of the user who will be marked as the owner of this deal. default: user's id
+   * integer person_id   id of the user this deal will be associated with.
+   * integer org_id      id of the organization this deal will be associated with.
+   * integer stage_id    id of the stage this deal will be placed into. default: first stage of the default pipeline
+   * string  status      open, won, lost, deleted. default: open
+   * string  lost_reason message about why the deal was lost.
+   * string  add_time    Creation date & time in UTC. Admin only. format: YYYY-MM-DD HH:MM:SS
+   * integer visible_to  1 = private, 3 = shared. default: user's default for type
+   *
    * @param  string  $title       title of the deal.
-   * @param  string  $value       value of the deal. default: 0
-   * @param  string  $currency    ISO 3166 alpha 3, three letter country code. default: user's currency
-   * @param  integer $user_id     id of the user who will be marked as the owner of this deal. default: user's id
-   * @param  integer $person_id   id of the user this deal will be associated with.
-   * @param  integer $org_id      id of the organization this deal will be associated with.
-   * @param  integer $stage_id    id of the stage this deal will be placed into. default: first stage of the default pipeline
-   * @param  string  $status      open, won, lost, deleted. default: open
-   * @param  string  $lost_reason message about why the deal was lost.
-   * @param  string  $add_time    Creation date & time in UTC. Admin only. format: YYYY-MM-DD HH:MM:SS
-   * @param  integer $visible_to  1 = private, 3 = shared. default: user's default for type
+   * @param  mixed   $fields      optional fields to specify
    * @return mixed
    */
-  public function createDeal($title, $value, $currency, $user_id, $person_id, $org_id, $stage_id, $status, $lost_reason, $add_time, $visible_to, $fields) {
+  public function createDeal($title, $fields) {
     if (!isset($title)) {
       throw new \Exception("A TITLE is required");
     } else if (isset($status) && !preg_match("/^(?:open|won|lost|deleted)$/", $status)) {
@@ -95,19 +112,8 @@ class Client {
     } else if (isset($visible_to) && $visible_to !== 1 && $visible_to !== 3) {
       throw new \Exception("'" . $visible_to . "' is not a valid visible_to value. Valid values are: 1, 3");
     }
-    $body = $this->getBody();
-    if (isset($fields)) { $body = array_merge($body, $fields); }
+    $body = array_merge($this->getBody(), $fields);
     $body["title"] = $title;
-    if (isset($value      )) { $body["value"]       = $value;       }
-    if (isset($currency   )) { $body["currency"]    = $currency;    }
-    if (isset($user_id    )) { $body["user_id"]     = $user_id;     }
-    if (isset($person_id  )) { $body["person_id"]   = $person_id;   }
-    if (isset($org_id     )) { $body["org_id"]      = $org_id;      }
-    if (isset($stage_id   )) { $body["stage_id"]    = $stage_id;    }
-    if (isset($status     )) { $body["status"]      = $status;      }
-    if (isset($lost_reason)) { $body["lost_reason"] = $lost_reason; }
-    if (isset($add_time   )) { $body["add_time"]    = $add_time;    }
-    if (isset($visible_to )) { $body["visible_to"]  = $visible_to;  }
     $response = \Unirest\Request::post($this->url . "deal/" . $id, $this->getHeaders(), json_encode($body));
     self::errorHandler($response);
     return $response->body;
@@ -129,7 +135,6 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDealField($id) {
-    if (!isset($id)) { throw new \Exception("An ID is required"); }
     $response = \Unirest\Request::get($this->url . "dealFields/" . $id, $this->getHeaders(), json_encode($this->getBody()));
     self::errorHandler($response);
     return $response->body;
