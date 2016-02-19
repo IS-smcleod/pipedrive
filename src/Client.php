@@ -66,7 +66,8 @@ class Client {
    * @return stdClass
    */
   protected function request($method, $url, $headers, $body) {
-    $response = \Unirest\Request::send($method, $url, json_encode($body), $headers);
+    if ($method === "POST") { $body = json_encode($body); }
+    $response = \Unirest\Request::send($method, $url, $body, $headers);
     $this->errorHandler($response);
     $this->lastRequest = array(
       "method"  => $method,
