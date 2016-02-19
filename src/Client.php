@@ -22,6 +22,14 @@ class Client {
   }
 
   /**
+   * Get a copy of the common body.
+   * @return array
+   */
+  protected function getBody() {
+    return array("api_token" => $this->token);
+  }
+
+  /**
    * Error handler for API responses.
    * @param  \Unirest\Response $response response to check
    */
@@ -41,7 +49,7 @@ class Client {
    * @return mixed                          the resulting deals
    */
   public function getDeals($filter_id, $start, $limit, $sort, $owned_by_you) {
-    $body = array();
+    $body = self::getBody();
     if (isset($filter_id   )) { $body["filter_id"]    = $filter_id;    }
     if (isset($start       )) { $body["start"]        = $start;        }
     if (isset($limit       )) { $body["limit"]        = $limit;        }
@@ -59,7 +67,7 @@ class Client {
    */
   public function getDeal($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
-    $response = \Unirest\Request::get($this->url . "deal/" . $id, self::getHeaders());
+    $response = \Unirest\Request::get($this->url . "deal/" . $id, self::getHeaders(), self::getBody());
     self::errorHandler($response);
     return $response->body;
   }
@@ -87,7 +95,7 @@ class Client {
     } else if (isset($visible_to) && $visible_to !== 1 && $visible_to !== 3) {
       throw new \Exception("'" . $visible_to . "' is not a valid visible_to value. Valid values are: 1, 3");
     }
-    $body = array();
+    $body = self::getBody();
     if (isset($fields)) { $body = array_merge($body, $fields); }
     $body["title"] = $title;
     if (isset($value      )) { $body["value"]       = $value;       }
@@ -110,7 +118,7 @@ class Client {
    * @return mixed
    */
   public function getDealFields() {
-    $response = \Unirest\Request::get($this->url . "dealFields", self::getHeaders());
+    $response = \Unirest\Request::get($this->url . "dealFields", self::getHeaders(), self::getBody());
     self::errorHandler($response);
     return $response->body;
   }
@@ -122,7 +130,7 @@ class Client {
    */
   public function getDealField($id) {
     if (!isset($id)) { throw new \Exception("An ID is required"); }
-    $response = \Unirest\Request::get($this->url . "dealFields/" . $id, self::getHeaders());
+    $response = \Unirest\Request::get($this->url . "dealFields/" . $id, self::getHeaders(), self::getBody());
     self::errorHandler($response);
     return $response->body;
   }
