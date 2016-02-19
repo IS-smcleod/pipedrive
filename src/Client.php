@@ -1,7 +1,7 @@
 <?php
 namespace Pipedrive;
 
-class Pipedrive {
+class Client {
 
   protected $token, $url;
 
