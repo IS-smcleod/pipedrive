@@ -1,17 +1,27 @@
 {
     "name": "smcleod/pipedrive",
-    "description": "Library to interact with pipedrive API v1",
+    "version": "1.0.0",
     "type": "library",
+    "description": "Library to interact with pipedrive API v1",
+    "license": "MIT",
     "authors": [
         {
             "name": "Scott Mcleod",
-            "email": "smcleod@infostructure.biz"
+            "email": "smcleod@infostructure.biz",
+            "homepage": "http://infostructure.net"
         }
     ],
-    "require": {},
+    "keywords": [
+        "client",
+        "pipedrive"
+    ],
+    "minimum-stability": "beta",
+    "require": {
+        "mashape/unirest-php": "2.*"
+    },
     "autoload": {
-      "psr-4": {
-        "Pipedrive\\": "lib/"
-      }
+        "psr-4": {
+            "Pipedrive\\": "lib/"
+        }
     }
 }
