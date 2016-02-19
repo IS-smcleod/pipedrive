@@ -68,7 +68,7 @@ class Client {
    * @param  mixed $options options for the request
    * @return mixed          the resulting deals
    */
-  public function getDeals($options) {
+  public function getDeals($options = array()) {
     $body = self::mergeOptions($this->getBody(), $options, "filter_id,start,limit,sort,owned_by_you");
     $response = \Unirest\Request::get($this->url . "deals", $this->getHeaders(), json_encode($body));
     self::errorHandler($response);
@@ -104,7 +104,7 @@ class Client {
    * @param  mixed   $fields      optional fields to specify
    * @return mixed
    */
-  public function createDeal($title, $fields) {
+  public function createDeal($title, $fields = array()) {
     if (!isset($title)) {
       throw new \Exception("A TITLE is required");
     } else if (isset($status) && !preg_match("/^(?:open|won|lost|deleted)$/", $status)) {
