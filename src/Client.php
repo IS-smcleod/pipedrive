@@ -107,6 +107,7 @@ class Client {
   /**
    * Create a new Deal.
    * Possible fields:
+   * string  title       title of the deal. Required
    * string  value       value of the deal. default: 0
    * string  currency    ISO 3166 alpha 3, three letter country code. default: user's currency
    * integer user_id     id of the user who will be marked as the owner of this deal. default: user's id
@@ -118,13 +119,11 @@ class Client {
    * string  add_time    Creation date & time in UTC. Admin only. format: YYYY-MM-DD HH:MM:SS
    * integer visible_to  1 = private, 3 = shared. default: user's default for type
    *
-   * @param  string  $title       title of the deal.
    * @param  mixed   $fields      optional fields to specify
    * @return mixed
    */
-  public function createDeal($title, $fields = array()) {
+  public function createDeal($fields = array()) {
     $body = array_merge($this->getBody(), $fields);
-    $body["title"] = $title;
     if ($body["title"] === NULL || $body["title"] === "") {
       throw new \Exception("A TITLE is required");
     } else if (isset($body["status"]) && !preg_match("/^(?:open|won|lost|deleted)$/", $body["status"])) {
