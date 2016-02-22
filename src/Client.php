@@ -94,7 +94,7 @@ class Client {
    * @return mixed          the resulting deals
    */
   public function getDeals($options = array()) {
-    $body = self::mergeOptions($this->getBody(), $options, "filter_id,start,limit,sort,owned_by_you");
+    $body = self::mergeOptions(array(), $options, "filter_id,start,limit,sort,owned_by_you");
     return $this->request('GET', $this->url . "deals", $body);
   }
 
