@@ -14,25 +14,6 @@ class Client {
   }
 
   /**
-   * Get a copy of the common headers.
-   * @return array
-   */
-  protected function getHeaders() {
-    return array(
-      "Content-Type" => "application/json",
-      "Accept" => "application/json"
-    );
-  }
-
-  /**
-   * Get a copy of the common body.
-   * @return array
-   */
-  protected function getBody() {
-    return array("api_token" => $this->token);
-  }
-
-  /**
    * Marge the specific fields from the source array into the target array.
    * @param  mixed        $target base array new entries will be added to
    * @param  mixed        $source source array to get new entries from
@@ -61,14 +42,31 @@ class Client {
    * Request wrapper
    * @param  string   $method  HTTP method to make the request with
    * @param  string   $url     URL for the request
-   * @param  mixed    $headers headers for the request
    * @param  mixed    $body    content for the request
+   * @param  mixed    $headers headers for the request
    * @return stdClass
    */
-  protected function request($method, $url, $headers, $body) {
-    if ($method === "POST") { $body = json_encode($body); }
+  protected function request($method, $url, $body = array(), $headers = array()) {
+    if ($method === "POST") {
+      // Ensure the token is part of the URL
+      $url .= strpos($url, '?') !== false ? '&' : '?';
+      $url .= "api_token=" . $this->token;
+      // Encode the body
+      $body = json_encode($body);
+    } else {
+      // Ensure the token is part of the body
+      $body = array_merge($body, array("api_token" => $this->token));
+    }
+
+    // Set the default data type
+    $headers = array_merge(array(
+      "Content-Type" => "application/json",
+      "Accept" => "application/json"
+    ), $headers);
+
     $response = \Unirest\Request::send($method, $url, $body, $headers);
-    $this->errorHandler($response);
+
+    // Save information for debugging
     $this->lastRequest = array(
       "method"  => $method,
       "url"     => $url,
@@ -76,6 +74,11 @@ class Client {
       "body"    => $body,
       "info"    => \Unirest\Request::getInfo()
     );
+
+    // Check for common errors
+    $this->errorHandler($response);
+
+    // Return the response
     return $response->body;
   }
 
@@ -92,7 +95,7 @@ class Client {
    */
   public function getDeals($options = array()) {
     $body = self::mergeOptions($this->getBody(), $options, "filter_id,start,limit,sort,owned_by_you");
-    return $this->request('GET', $this->url . "deals", $this->getHeaders(), $body);
+    return $this->request('GET', $this->url . "deals", $body);
   }
 
   /**
@@ -101,7 +104,7 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDeal($id) {
-    return $this->request('GET', $this->url . "deals/" . $id, $this->getHeaders(), $this->getBody());
+    return $this->request('GET', $this->url . "deals/" . $id);
   }
 
   /**
@@ -123,7 +126,7 @@ class Client {
    * @return mixed
    */
   public function createDeal($fields = array()) {
-    $body = array_merge($this->getBody(), $fields);
+    $body = $fields;
     if ($body["title"] === NULL || $body["title"] === "") {
       throw new \Exception("A TITLE is required");
     } else if (isset($body["status"]) && !preg_match("/^(?:open|won|lost|deleted)$/", $body["status"])) {
@@ -131,7 +134,7 @@ class Client {
     } else if (isset($body["visible_to"]) && $body["visible_to"] !== 1 && $body["visible_to"] !== 3) {
       throw new \Exception("'" . $body["visible_to"] . "' is not a valid visible_to value. Valid values are: 1, 3");
     }
-    return $this->request('POST', $this->url . "deals", $this->getHeaders(), $body);
+    return $this->request('POST', $this->url . "deals", $body);
   }
 
   /**
@@ -139,7 +142,7 @@ class Client {
    * @return mixed
    */
   public function getDealFields() {
-    return $this->request('GET', $this->url . "dealFields", $this->getHeaders(), $this->getBody());
+    return $this->request('GET', $this->url . "dealFields");
   }
 
   /**
@@ -148,7 +151,7 @@ class Client {
    * @return mixed        the deal or
    */
   public function getDealField($id) {
-    return $this->request('GET', $this->url . "dealFields/" . $id, $this->getHeaders(), $this->getBody());
+    return $this->request('GET', $this->url . "dealFields/" . $id);
   }
 
 }
